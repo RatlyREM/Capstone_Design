@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 #db 연동
 import pymysql
@@ -118,6 +119,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+#JWT 설정
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=3),
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('JWT',),
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/

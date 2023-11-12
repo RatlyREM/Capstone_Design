@@ -12,7 +12,6 @@ def login_check(func):
     def wrapper(self, request, *args, **kwargs):
         try:
             access = request.COOKIES.get('access')
-            # access_token = request.headers.get('Authorization', None)
             payload = jwt.decode(access, SECRET_KEY, algorithms='HS256')
             user = User.objects.get(id=payload['user_id'])
             request.user = user
