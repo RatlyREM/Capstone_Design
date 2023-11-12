@@ -1,7 +1,11 @@
+import string
+import random
+
 from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Group, Permission
 
+#django에서 제공하는 커스텀 유저 모델(auth_user)
 class UserManager(BaseUserManager):
     def create_user(self, email, nickname, password, **kwargs):
         if not email:
@@ -27,6 +31,9 @@ class UserManager(BaseUserManager):
         superuser.save(using=self._db)
         return superuser
 
+def generate_random_nickname():
+    rstring = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+    return rstring
 class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
@@ -38,6 +45,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    #
+    # groups = models.ManyToManyField(Group, verbose_name='groups', blank=True, related_name='user_groups')
+    # user_permissions = models.ManyToManyField(Permission, verbose_name='user permissions', blank=True,
+    #                                           related_name='user_permissions')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nickname']

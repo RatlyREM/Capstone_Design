@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 
     #앱
     'Equipments.apps.EquipmentsConfig',
+    'Accounts.apps.AccountsConfig',
 ]
 
 MIDDLEWARE = [
@@ -96,6 +97,8 @@ DATABASES = {
     }
 }
 
+#user 설정
+AUTH_USER_MODEL = 'Accounts.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
