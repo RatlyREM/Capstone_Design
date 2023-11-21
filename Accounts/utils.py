@@ -19,5 +19,8 @@ def login_check(func):
             return Response({'message': 'INVALID TOKEN'}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
             return Response({'message': 'INVALID USER'}, status=status.HTTP_400_BAD_REQUEST)
+        except jwt.exceptions.ExpiredSignatureError:
+            return Response({"message": "다시 로그인해 주십시오."}, status=status.HTTP_400_BAD_REQUEST)
         return func(self, request, *args, **kwargs)
+
     return wrapper
