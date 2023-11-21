@@ -81,27 +81,27 @@ class AuthAPIView(APIView):
             res.set_cookie('access', access)
             res.set_cookie('refresh', request.COOKIES.get('refresh'))
             return res
-        #     # access token이 만료되었을 때
-        # except jwt.exceptions.ExpiredSignatureError:
-        #     try:
-        #         data = {'refresh': request.COOKIES.get('refresh', None)}
-        #         serializer = TokenRefreshSerializer(data=data)
-        #         if serializer.is_valid(raise_exception=True):
-        #             access = serializer.validated_data.get('access', None)
-        #             refresh = serializer.validated_data.get('refresh', None)
-        #             payload = jwt.decode(access, SECRET_KEY, algorithms=['HS256'])
-        #             pk = payload.get('user_id')
-        #             user = get_object_or_404(User, pk=pk)
-        #             serializer = UserSerializer(instance=user)
-        #             res = Response(serializer.data, status=status.HTTP_200_OK)
-        #             res.set_cookie('access', access)
-        #             res.set_cookie('refresh', refresh)
-        #             return res
-        #     except rest_framework_simplejwt.exceptions.TokenError:
-        #         return Response({"message": "로그인이 만료되었습니다."}, status=status.HTTP_200_OK)
-        #
-        #     raise jwt.exceptions.InvalidTokenError
-        # 사용 불가능한 토큰일 때
+            # access token이 만료되었을 때
+        except jwt.exceptions.ExpiredSignatureError:
+            try:
+                data = {'refresh': request.COOKIES.get('refresh', None)}
+                serializer = TokenRefreshSerializer(data=data)
+                if serializer.is_valid(raise_exception=True):
+                    access = serializer.validated_data.get('access', None)
+                    refresh = serializer.validated_data.get('refresh', None)
+                    payload = jwt.decode(access, SECRET_KEY, algorithms=['HS256'])
+                    pk = payload.get('user_id')
+                    user = get_object_or_404(User, pk=pk)
+                    serializer = UserSerializer(instance=user)
+                    res = Response(serializer.data, status=status.HTTP_200_OK)
+                    res.set_cookie('access', access)
+                    res.set_cookie('refresh', refresh)
+                    return res
+            except rest_framework_simplejwt.exceptions.TokenError:
+                return Response({"message": "로그인이 만료되었습니다."}, status=status.HTTP_200_OK)
+
+            raise jwt.exceptions.InvalidTokenError
+        #사용 불가능한 토큰일 때
         except jwt.exceptions.InvalidTokenError:
             return Response({"message": "로그인 되어 있지 않습니다. 로그인 해 주세요."}, status=status.HTTP_404_NOT_FOUND)
 

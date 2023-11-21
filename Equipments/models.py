@@ -13,8 +13,8 @@ class Equipment(models.Model):
     manufacturer= models.CharField(max_length=30, blank=True, null=True, default=None)
     recommend_count=models.IntegerField(blank=True, null=True, default=0)
 
-    #recommend_user = models.ManyToManyField(Accounts.models.User, related_name='recommend_user')
+    recommend_user = models.ManyToManyField(Accounts.models.User, related_name='recommend_user', blank=True)
 
     class Meta:
-        managed = False
+        #managed = False
         db_table= 'equipment'
