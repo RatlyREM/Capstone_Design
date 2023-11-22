@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.utils import timezone
 
-from Equipments.models import Equipment
+from Equipments.models import Equipment,Log
 class EquipmentSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.model_name = validated_data.get('model_name', instance.model_name)
@@ -19,3 +19,8 @@ class EquipmentSerializer(serializers.ModelSerializer):
     class Meta:
         model =Equipment
         fields = '__all__'
+
+class LogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Log
+        fields= '__all__'

@@ -24,7 +24,8 @@ class Equipment(models.Model):
         db_table= 'equipment'
 
 class Log(models.Model):
-    u = models.ForeignKey('Accounts.User', on_delete=models.CASCADE, related_name='log_user_id')
+    #log_id = models.AutoField(primary_key=True)
+    user_id = models.ForeignKey('Accounts.User', on_delete=models.CASCADE,db_column='u_id' , related_name='log_user_id')
     model_name = models.ForeignKey('Equipment', on_delete=models.CASCADE, db_column='model_name')
     rent_count= models.IntegerField(default=0)
     return_deadline = models.DateTimeField(blank= True, null= True, default= None)
@@ -33,6 +34,7 @@ class Log(models.Model):
     return_requested_date = models.DateTimeField(blank= True, null= True, default= None)
     return_accepted_date = models.DateTimeField(blank= True, null= True, default= None)
     rent_price= models.IntegerField(blank=True, null=True, default= None)
+    updated_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         #managed= False

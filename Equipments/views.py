@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from operator import attrgetter
 
-from Equipments.serializers import EquipmentSerializer
-from Equipments.models import Equipment
+from Equipments.serializers import EquipmentSerializer, LogSerializer
+from Equipments.models import Equipment,Log
 
 from Accounts.utils import login_check
 
@@ -13,6 +13,18 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
+
+class LogAPIView(APIView):
+    #입출고 현황 조회 API
+    def get(self, request):
+        log_objects = Log.objects.all().order_by('-updated_at')
+
+        if not log_objects.exists():
+            return Response({"message": "로그 데이터가 없습니다."}, status= status.HTTP_204_NO_CONTENT)
+
+        serializer = LogSerializer(log_objects, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class InventoryAPIView(APIView):
     #전체 기자재 리스트 표시(이름순)

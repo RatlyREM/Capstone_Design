@@ -1,9 +1,13 @@
 from django.urls import path
-from Equipments.views import InventoryAPIView,InventoryDetailAPIView,InventoryInqUpdatedAtAPIView,InventoryInqTotalRentAPIView,InventorySearchAPIView
+from Equipments.views import InventoryAPIView,InventoryDetailAPIView,InventoryInqUpdatedAtAPIView,InventoryInqTotalRentAPIView,InventorySearchAPIView, LogAPIView
 
 from . import views
 
 urlpatterns= [
+     #입출고 현황 조회
+     path('log/', LogAPIView.as_view()),
+
+
      #기자재 정보 추가, 삭제, 조회(이름순),조회(가격순),조회(총 대여횟수) 수정
      path('inventory/', InventoryAPIView.as_view()),
      path('inventory/updatedat/',InventoryInqUpdatedAtAPIView.as_view()),
