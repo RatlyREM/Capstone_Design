@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 
 from django.http import Http404
+from operator import attrgetter
 
 from Equipments.serializers import EquipmentSerializer
 from Equipments.models import Equipment
@@ -95,6 +96,7 @@ class InventoryDetailAPIView(APIView):
             return Response({"message": "삭제할 기자재를 찾지 못했습니다."}, status=status.HTTP_404_NOT_FOUND)
 
 class InventoryInqTotalRentAPIView(APIView):
+    #기자재 정보 조회 API(총 조회수 많은 순서)
     def get(self, request):
         equip = Equipment.objects.all().order_by('-total_rent')
 
@@ -104,12 +106,47 @@ class InventoryInqTotalRentAPIView(APIView):
         serializer = EquipmentSerializer(equip, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class InventoryInqCreatedAtAPIView(APIView):
+class InventoryInqUpdatedAtAPIView(APIView):
+    #기자재 정보 조회 API(기자재 정보 추가된 시간 순서)
     def get(self, request):
-        equip = Equipment.objects.all().order_by('-created_at')
+        equip = Equipment.objects.all().order_by('-updated_at')
 
         if not equip.exists():
             return Response({"message": "기자재 데이터가 없습니다."}, status=status.HTTP_204_NO_CONTENT)
 
         serializer = EquipmentSerializer(equip, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class InventorySearchAPIView(APIView):
+    #기자재 검색 API (model_name,name,type,repository,manufacturer)
+     def post(self, request):
+         try:
+            if not request.data['searchData']:
+                equip = Equipment.objects.all()
+                serializer = EquipmentSerializer(equip, many=True)
+                return Response(serializer.data, status= status.HTTP_200_OK)
+
+            search = request.data['searchData']
+            modelnameResult = list(Equipment.objects.filter(model_name__icontains= search))
+            nameResult = list(Equipment.objects.filter(name__icontains = search))
+            typeResult = list(Equipment.objects.filter(type__icontains=search))
+            repositoryResult = list(Equipment.objects.filter(repository__icontains=search))
+            manufacturerResult = list(Equipment.objects.filter(manufacturer__icontains=search))
+
+            combined_object = modelnameResult+nameResult+typeResult+repositoryResult+manufacturerResult
+            combined_object = sorted(combined_object,key=attrgetter('model_name'))
+
+            if len(combined_object) == 0:
+                raise ValidationError
+            serializer = EquipmentSerializer(combined_object, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+         except ValidationError:
+             return Response({"message": "검색 결과가 없습니다."}, status= status.HTTP_204_NO_CONTENT)
+         except KeyError:
+             return Response({"message": "공백으로라도 searchData 전달 필요"}, status= status.HTTP_400_BAD_REQUEST)
+
+
+
+

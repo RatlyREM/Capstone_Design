@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils import timezone
 
 from Equipments.models import Equipment
 class EquipmentSerializer(serializers.ModelSerializer):
@@ -11,6 +12,7 @@ class EquipmentSerializer(serializers.ModelSerializer):
         instance.total_stock = validated_data.get('total_stock', instance.total_stock)
         instance.current_stock = validated_data.get('current_stock', instance.current_stock)
         instance.manufacturer = validated_data.get('manufacturer', instance.manufacturer)
+        instance.updated_at = timezone.now()
 
         instance.save()
         return instance
