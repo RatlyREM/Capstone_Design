@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404,get_list_or_404
 
 from django.http import Http404
 from operator import attrgetter
@@ -8,6 +8,8 @@ from Equipments.serializers import EquipmentSerializer, LogSerializer
 from Equipments.models import Equipment,Log
 
 from Accounts.utils import login_check
+
+from Bookmark.models import Favorites
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -25,6 +27,30 @@ class LogAPIView(APIView):
         serializer = LogSerializer(log_objects, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class BookmarkLogAPIView(APIView):
+    #현재 로그인한 유저가 즐겨찾기 해둔 기자재의 로그 내역만 조회
+    @login_check
+    def get(self, request):
+        try:
+            # 로그인한 유저의 즐겨찾기 기자재를 모두 가져온다.
+            fav = Favorites.objects.filter(user_id=request.user.id)
+
+            log_list = []
+
+            # 즐겨찾기 기자재의 로그들만 가져온다.
+            for i in fav:
+                bookmark_name = i.model_name.model_name
+                logs = Log.objects.filter(model_name=bookmark_name)
+                log_list.extend(logs)
+
+            if len(log_list) == 0 or len(fav) == 0:
+                raise ValidationError
+            log_list = sorted(log_list, key=attrgetter('updated_at'), reverse=True)
+
+            serializer = LogSerializer(log_list, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValidationError:
+            return Response({"message": "해당 유저의 즐겨찾기 기자재 로그가 존재하지 않습니다."}, status= status.HTTP_404_NOT_FOUND)
 
 class InventoryAPIView(APIView):
     #전체 기자재 리스트 표시(이름순)
