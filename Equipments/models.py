@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from datetime import datetime
 import Accounts.models
+
 class Equipment(models.Model):
     model_name=models.CharField(max_length=50, primary_key=True)
     name=models.CharField(max_length=30, default=None)
@@ -21,3 +22,18 @@ class Equipment(models.Model):
     class Meta:
         #managed = False
         db_table= 'equipment'
+
+class Log(models.Model):
+    u = models.ForeignKey('Accounts.User', on_delete=models.CASCADE, related_name='log_user_id')
+    model_name = models.ForeignKey('Equipment', on_delete=models.CASCADE, db_column='model_name')
+    rent_count= models.IntegerField(default=0)
+    return_deadline = models.DateTimeField(blank= True, null= True, default= None)
+    rent_requested_date = models.DateTimeField(blank= True, null= True, default= None)
+    rent_accepted_date = models.DateTimeField(blank= True, null= True, default= None)
+    return_requested_date = models.DateTimeField(blank= True, null= True, default= None)
+    return_accepted_date = models.DateTimeField(blank= True, null= True, default= None)
+    rent_price= models.IntegerField(blank=True, null=True, default= None)
+
+    class Meta:
+        #managed= False
+        db_table = 'log'
