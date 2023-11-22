@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     #앱
     'Equipments.apps.EquipmentsConfig',
     'Accounts.apps.AccountsConfig',
+    'Bookmark.apps.BookmarkConfig',
+    'Board.apps.BoardConfig',
 ]
 
 MIDDLEWARE = [
