@@ -45,7 +45,7 @@ class InventoryAPIView(APIView):
                 # 기자재 중복체크 필요
                 get_object_or_404(Equipment, pk=request.data['model_name'])
 
-                return Response({"message": "중복된 기자재를 입력했습니다."}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"message": "중복된 기자재를 입력했습니다."}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response({"message": "기자재를 추가할 권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
         except Http404:

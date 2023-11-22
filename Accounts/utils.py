@@ -16,7 +16,7 @@ def login_check(func):
             user = User.objects.get(id=payload['user_id'])
             request.user = user
         except jwt.exceptions.DecodeError:
-            return Response({'message': 'INVALID TOKEN'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': '먼저 로그인해 주십시오.'}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
             return Response({'message': 'INVALID USER'}, status=status.HTTP_400_BAD_REQUEST)
         except jwt.exceptions.ExpiredSignatureError:
