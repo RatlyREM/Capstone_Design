@@ -28,7 +28,7 @@ class LogAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class BookmarkLogAPIView(APIView):
-    #현재 로그인한 유저가 즐겨찾기 해둔 기자재의 로그 내역만 조회
+    #현재 로그인한 유저가 즐겨찾기 해둔 기자재의 로그 내역만 조회 API
     @login_check
     def get(self, request):
         try:
@@ -45,9 +45,10 @@ class BookmarkLogAPIView(APIView):
 
             if len(log_list) == 0 or len(fav) == 0:
                 raise ValidationError
-            log_list = sorted(log_list, key=attrgetter('updated_at'), reverse=True)
 
+            log_list = sorted(log_list, key=attrgetter('updated_at'), reverse=True)
             serializer = LogSerializer(log_list, many=True)
+
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ValidationError:
             return Response({"message": "해당 유저의 즐겨찾기 기자재 로그가 존재하지 않습니다."}, status= status.HTTP_404_NOT_FOUND)
