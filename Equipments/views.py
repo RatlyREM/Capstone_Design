@@ -1,6 +1,6 @@
-from rest_framework.exceptions import ValidationError
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
+
 from django.http import Http404
 
 from Equipments.serializers import EquipmentSerializer
@@ -11,8 +11,19 @@ from Accounts.utils import login_check
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.exceptions import ValidationError
 
 class InventoryAPIView(APIView):
+    #전체 기자재 리스트 표시(이름순)
+    def get(self, request):
+        equip = Equipment.objects.all().order_by('model_name')
+
+        if not equip.exists():
+            return Response({"message": "기자재 데이터가 없습니다."}, status=status.HTTP_204_NO_CONTENT)
+
+        serializer = EquipmentSerializer(equip, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     #기자재 정보 추가 API
     @login_check
     def post(self, request):
@@ -82,3 +93,23 @@ class InventoryDetailAPIView(APIView):
                 return Response({"message": "기자재를 삭제할 권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
         except Http404:
             return Response({"message": "삭제할 기자재를 찾지 못했습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+class InventoryInqTotalRentAPIView(APIView):
+    def get(self, request):
+        equip = Equipment.objects.all().order_by('-total_rent')
+
+        if not equip.exists():
+            return Response({"message": "기자재 데이터가 없습니다."}, status=status.HTTP_204_NO_CONTENT)
+
+        serializer = EquipmentSerializer(equip, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class InventoryInqCreatedAtAPIView(APIView):
+    def get(self, request):
+        equip = Equipment.objects.all().order_by('-created_at')
+
+        if not equip.exists():
+            return Response({"message": "기자재 데이터가 없습니다."}, status=status.HTTP_204_NO_CONTENT)
+
+        serializer = EquipmentSerializer(equip, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
