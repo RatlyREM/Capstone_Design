@@ -1,9 +1,11 @@
 from django.urls import path
-from Equipments.views import InventoryAPIView,InventoryDetailAPIView,InventoryInqUpdatedAtAPIView,InventoryInqTotalRentAPIView,InventorySearchAPIView, LogAPIView,BookmarkLogAPIView
+from Equipments.views import InventoryAPIView,InventoryDetailAPIView,InventoryInqUpdatedAtAPIView,InventoryInqTotalRentAPIView,InventorySearchAPIView, LogAPIView,BookmarkLogAPIView,RentAPIView
 
 from . import views
 
 urlpatterns= [
+     path('rent/', RentAPIView.as_view()),
+
      #입출고 현황 조회
      path('log/', LogAPIView.as_view()),
 

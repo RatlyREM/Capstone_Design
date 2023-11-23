@@ -4,8 +4,9 @@ from django.shortcuts import get_object_or_404,get_list_or_404
 from django.http import Http404
 from operator import attrgetter
 
-from Equipments.serializers import EquipmentSerializer, LogSerializer
+from Equipments.serializers import EquipmentSerializer, LogSerializer, RentSerializer
 from Equipments.models import Equipment,Log
+from django.utils import timezone
 
 from Accounts.utils import login_check
 
@@ -16,9 +17,52 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 
+class RentAPIView(APIView):
+    # 대여 신청 API
+    @login_check
+    def post(self, request):
+        try:
+            request.data['user_id'] = request.user.id
+            request.data['return_deadline'] = timezone.now() + timezone.timedelta(days=7)
+            request.data['rent_requested_date'] = timezone.now()
 
+            equip = Equipment.objects.get(model_name=request.data['model_name'])
 
+            request.data['rent_price'] = equip.price
 
+            #재고 판단
+            if equip.current_stock < request.data['rent_count']:
+                raise ValidationError
+
+            #현재 재고에서 개수 빼기
+            equip.current_stock -= request.data['rent_count']
+            equip.save()
+
+            serializer_log = LogSerializer(data=request.data)
+
+            if serializer_log.is_valid():
+                serializer_log.save()
+
+                #renting 테이블에 승인일자가 NULL인 채로 삽입
+
+                rent_data = {
+                    "user_id": serializer_log.data['user_id'],
+                    "log_id": serializer_log.data['id']
+                }
+
+                serializer_rent = RentSerializer(data = rent_data)
+
+                if serializer_rent.is_valid():
+                    serializer_rent.save()
+
+                return Response(serializer_log.data, status=status.HTTP_201_CREATED)
+            return Response(serializer_log.errors, status= status.HTTP_400_BAD_REQUEST)
+        except Equipment.DoesNotExist:
+            return Response({"message": "해당 기자재의 정보가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response({"message": "model_name과 수량을 올바르게 전달하세요."}, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError:
+            return Response({"message": "대여 신청한 수량이 현재 재고를 초과합니다."}, status=status.HTTP_400_BAD_REQUEST)
 class LogAPIView(APIView):
     #입출고 현황 조회 API
     def get(self, request):
