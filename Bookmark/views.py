@@ -17,7 +17,7 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 
 class FavoritesAPIView(APIView):
-    #내 즐겨찾기 목록에 추가 API
+    # 내 즐겨찾기 목록에 추가 API
     @login_check
     def post(self, request):
         try:
@@ -42,7 +42,7 @@ class FavoritesAPIView(APIView):
         except KeyError:
             return Response({"message": "model_name을 올바르게 전달하세요."}, status=status.HTTP_400_BAD_REQUEST)
 
-    #내 즐겨찾기 목록 조회 API
+    # 내 즐겨찾기 목록 조회 API
     @login_check
     def get(self, request):
         try:
@@ -58,6 +58,7 @@ class FavoritesAPIView(APIView):
             return Response({"message": "해당 유저의 즐겨찾기 목록이 없습니다."}, status= status.HTTP_404_NOT_FOUND)
 
 class FavoritesDeleteAPIView(APIView):
+    # get으로 보여주는 테스트
     # @login_check
     # def get(self,request, pk):
     #     try:
