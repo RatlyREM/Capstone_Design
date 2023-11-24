@@ -2,7 +2,6 @@ from django.urls import path
 from Equipments.views import InventoryAPIView,InventoryDetailAPIView,InventoryInqUpdatedAtAPIView,\
      InventoryInqTotalRentAPIView,InventorySearchAPIView, LogAPIView,BookmarkLogAPIView,RentRequestAPIView,RentAcceptedAPIView,OverDueAPIView
 
-
 from . import views
 
 urlpatterns= [

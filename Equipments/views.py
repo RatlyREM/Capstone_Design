@@ -18,9 +18,24 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 
 class OverDueAPIView(APIView):
+    # 나의 연체된 로그 조회
     @login_check
     def get(self,request):
-        Response("message")
+        try:
+            log_obj = Log.objects.filter(user_id= request.user.id, return_requested_date__isnull= True,return_deadline__lt=timezone.now())
+
+            if len(log_obj) == 0:
+                raise ValidationError
+
+            serializer = LogSerializer(log_obj, many=True)
+            return Response(serializer.data, status= status.HTTP_200_OK)
+        except ValidationError:
+            return Response({"message": "연체된 내역이 없습니다."}, status=status.HTTP_204_NO_CONTENT)
+
+    #반납 기한 연장 API
+    #def post(self, request, pk):
+
+
 class RentAcceptedAPIView(APIView):
     #대여 승인 API
     @login_check
