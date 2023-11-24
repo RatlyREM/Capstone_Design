@@ -41,10 +41,12 @@ class Log(models.Model):
         db_table = 'log'
 
 class Renting(models.Model):
+    user_id = models.ForeignKey('Accounts.User', on_delete=models.CASCADE, db_column='u_id',
+                                related_name='renting_user_id')
     log_id = models.ForeignKey(Log, on_delete=models.CASCADE, db_column='log_id', related_name='renting_log_id', null=True)
-    rent_accepted_date = models.ForeignKey(Log, on_delete=models.CASCADE, db_column='rent_accepted_date', to_field='rent_accepted_date',
-                                            null= True)
-    user_id = models.ForeignKey('Accounts.User', on_delete=models.CASCADE, db_column='u_id', related_name= 'renting_user_id')
+    rent_accepted_date = models.ForeignKey(Log, on_delete=models.CASCADE, db_column='rent_accepted_date',
+                                           to_field='rent_accepted_date', related_name='log_rent_date',
+                                           null=True)
 
     class Meta:
         #managed= False

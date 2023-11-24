@@ -1,10 +1,17 @@
 from django.urls import path
-from Equipments.views import InventoryAPIView,InventoryDetailAPIView,InventoryInqUpdatedAtAPIView,InventoryInqTotalRentAPIView,InventorySearchAPIView, LogAPIView,BookmarkLogAPIView,RentAPIView
+from Equipments.views import InventoryAPIView,InventoryDetailAPIView,InventoryInqUpdatedAtAPIView,\
+     InventoryInqTotalRentAPIView,InventorySearchAPIView, LogAPIView,BookmarkLogAPIView,RentRequestAPIView,RentAcceptedAPIView,OverDueAPIView
+
 
 from . import views
 
 urlpatterns= [
-     path('rent/', RentAPIView.as_view()),
+     #대여 신청 및 승인
+     path('rent/', RentRequestAPIView.as_view()),
+     path('rent/<int:pk>/', RentAcceptedAPIView.as_view()),
+
+     #연체된 기자재 조회
+     path('overdue/', OverDueAPIView.as_view()),
 
      #입출고 현황 조회
      path('log/', LogAPIView.as_view()),

@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404,get_list_or_404
 from django.http import Http404
 from operator import attrgetter
 
-from Equipments.serializers import EquipmentSerializer, LogSerializer, RentSerializer
-from Equipments.models import Equipment,Log
+from Equipments.serializers import EquipmentSerializer, LogSerializer, RentSerializer,LogRentAcceptedSerializer
+from Equipments.models import Equipment,Log,Renting
 from django.utils import timezone
 
 from Accounts.utils import login_check
@@ -17,7 +17,42 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 
-class RentAPIView(APIView):
+class OverDueAPIView(APIView):
+    @login_check
+    def get(self,request):
+        Response("message")
+class RentAcceptedAPIView(APIView):
+    #대여 승인 API
+    @login_check
+    def put(self, request, pk):
+        try:
+            if request.user.is_staff:
+                r = Log.objects.get(pk=pk)
+
+                #이미 승인되어 있는 경우 예외처리
+                if r.rent_accepted_date is not None:
+                    raise ValidationError
+
+                serializer_log = LogRentAcceptedSerializer(r, data=request.data, partial=True)
+
+                if serializer_log.is_valid():
+                    serializer_log.save()
+
+                    #대여 횟수 1 더하기
+                    b = Equipment.objects.get(pk=r.model_name.model_name)
+                    b.total_rent += 1
+                    b.save()
+
+                    return Response(serializer_log.data, status=status.HTTP_200_OK)
+                return Response(serializer_log.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"message": "대여 요청을 승인할 권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+        except Log.DoesNotExist:
+            return Response({"message": "내역이 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+        except ValidationError:
+            return Response({"message": "이미 승인한 내역이 존재합니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+class RentRequestAPIView(APIView):
     # 대여 신청 API
     @login_check
     def post(self, request):
@@ -63,6 +98,24 @@ class RentAPIView(APIView):
             return Response({"message": "model_name과 수량을 올바르게 전달하세요."}, status=status.HTTP_400_BAD_REQUEST)
         except ValidationError:
             return Response({"message": "대여 신청한 수량이 현재 재고를 초과합니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    #나의 대여 중인 리스트 조회 API
+    @login_check
+    def get(self, request):
+        try:
+            renting_obj = Renting.objects.filter(user_id= request.user.id, rent_accepted_date__isnull= False)
+
+            if len(renting_obj) == 0:
+                raise ValidationError
+
+            renting_obj = sorted(renting_obj, key=attrgetter('rent_accepted_date.rent_accepted_date'), reverse=True)
+            serializer = RentSerializer(renting_obj, many=True)
+            return Response(serializer.data, status= status.HTTP_200_OK)
+        except ValidationError:
+            return Response({"message": "내가 대여 중인 내역이 없습니다."}, status= status.HTTP_204_NO_CONTENT)
+
+
 class LogAPIView(APIView):
     #입출고 현황 조회 API
     def get(self, request):

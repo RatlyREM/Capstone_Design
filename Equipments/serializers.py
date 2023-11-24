@@ -29,3 +29,18 @@ class LogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Log
         fields= '__all__'
+
+class LogRentAcceptedSerializer(serializers.ModelSerializer):
+    def update(self, instance, validated_data):
+        instance.rent_accepted_date = timezone.now()
+        instance.updated_at = timezone.now()
+        instance.rent_price = validated_data.get('rent_price', instance.rent_price)
+        instance.save()
+
+        #foreign key update
+        Renting.objects.filter(log_id=instance).update(rent_accepted_date=instance.rent_accepted_date)
+
+        return instance
+    class Meta:
+        model= Log
+        fields= '__all__'
