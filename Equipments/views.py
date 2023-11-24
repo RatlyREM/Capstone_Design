@@ -4,8 +4,9 @@ from django.shortcuts import get_object_or_404,get_list_or_404
 from django.http import Http404
 from operator import attrgetter
 
-from Equipments.serializers import EquipmentSerializer, LogSerializer, RentSerializer,LogRentAcceptedSerializer
-from Equipments.models import Equipment,Log,Renting
+from Accounts.models import User
+from Equipments.serializers import EquipmentSerializer, LogCreateSerializer, LogModifySerializer, RentSerializer,LogRentAcceptedSerializer,ReturnedSerializer,RequestGetRentingSerializer,RequestGetReturningSerializer
+from Equipments.models import Equipment,Log,Renting, Returning, Returned
 from django.utils import timezone
 
 from Accounts.utils import login_check
@@ -17,6 +18,187 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 
+class RequestGetAPIView(APIView):
+    #승인 대기 중인 리스트 조회 API
+    @login_check
+    def get(self, request):
+        try:
+            if request.user.is_staff:
+                rent_obj = Renting.objects.filter(rent_accepted_date__isnull= True)
+                return_obj = Returning.objects.all()
+
+                if len(rent_obj) == 0 and len(return_obj) == 0:
+                    raise ValidationError
+
+                rent_serializer = RequestGetRentingSerializer(rent_obj, many=True)
+                return_serializer = RequestGetReturningSerializer(return_obj, many=True)
+
+
+                r = {
+                    "rent": rent_serializer.data,
+                    "return": return_serializer.data,
+                }
+
+                return Response(r, status= status.HTTP_200_OK)
+            else:
+                return Response({"message": "승인 대기 리스트를 볼 권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+        except ValidationError:
+            return Response({"message": "승인 대기중인 내역이 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class ReturnedGetAPIView(APIView):
+    #나의 반납 완료한 리스트 조회 API
+    @login_check
+    def get(self,request):
+        returned_obj = Returned.objects.filter(user_id = request.user.id)
+        returned_obj = sorted(returned_obj, key= attrgetter('return_accepted_date'), reverse=True)
+
+        if len(returned_obj) == 0:
+            return Response({"message": "반납 완료한 데이터가 없습니다."}, status= status.HTTP_404_NOT_FOUND)
+
+        serializer = ReturnedSerializer(returned_obj, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class RentRefusedAPIView(APIView):
+    #대여 승인 거절 API
+    @login_check
+    def get(self, request, pk):
+        try:
+            log_obj = Log.objects.get(pk=pk)
+
+            if request.user.is_staff:
+                #대여 승인 가능한 상태인지 확인
+                if log_obj.rent_accepted_date is not None:
+                    raise ValidationError
+
+                # 반납 중 테이블에서 삭제
+                renting_obj = Renting.objects.get(log_id=pk)
+                renting_obj.delete()
+
+                # 현재 재고에서 개수 더하기
+                equip = Equipment.objects.get(model_name=log_obj.model_name.model_name)
+                equip.current_stock += log_obj.rent_count
+                equip.save()
+
+                # rent_count를 0으로 바꿔버리기
+                log_obj.rent_count = 0
+                log_obj.save()
+
+                serializer = LogCreateSerializer(log_obj)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "승인 거절할 권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        except ValidationError:
+            return Response({"message": "이미 승인했던 내역이 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
+        except Log.DoesNotExist:
+            return Response({"message": "내역이 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+class ReturnAcceptedAPIView(APIView):
+    #반납 승인 API
+    @login_check
+    def get(self, request, pk):
+        try:
+            log_obj = Log.objects.get(pk=pk)
+            user_obj = User.objects.get(pk=request.user.id)
+
+            #관리자인지 확인
+            if request.user.is_staff:
+                #승인 가능한 상태인지 확인
+                if log_obj.return_accepted_date is not None:
+                    raise ValidationError
+
+                # 반납 승인시간 업데이트
+                log_obj.return_accepted_date = timezone.now()
+                log_obj.save()
+
+                # 반납 중 테이블에서 삭제
+                returning_obj = Returning.objects.get(log_id=pk)
+                returning_obj.delete()
+
+                # 반납 완료 테이블에 삽입
+                Returned.objects.create(
+                    log_id=log_obj,
+                    return_accepted_date=log_obj,
+                    user_id = user_obj
+                )
+
+                # 현재 재고에서 개수 더하기
+                equip = Equipment.objects.get(model_name=log_obj.model_name.model_name)
+                equip.current_stock -= log_obj.rent_count
+                equip.save()
+
+                serializer = LogCreateSerializer(log_obj)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "반납 승인할 권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+        except ValidationError:
+            return Response({"message": "승인했던 내역이 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
+        except Log.DoesNotExist:
+            return Response({"message": "내역이 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class ReturnRequestAPIView(APIView):
+    #반납 신청 API
+    @login_check
+    def get(self, request, pk):
+        try:
+            log_obj = Log.objects.get(pk=pk)
+            user_obj = User.objects.get(pk= request.user.id)
+
+            #빌린 본인인지 확인
+            if log_obj.user_id.id == request.user.id:
+                # 반납 가능한 상태인지 확인
+                if log_obj.return_requested_date is not None:
+                    raise ValidationError
+
+                #반납 신청시간 업데이트
+                log_obj.return_requested_date = timezone.now()
+                log_obj.save()
+
+                #대여 중 테이블에서 삭제
+                renting_obj = Renting.objects.get(log_id= pk)
+                renting_obj.delete()
+
+                #반납 중 테이블에 삽입
+                Returning.objects.create(
+                    log_id = log_obj,
+                    user_id= user_obj,
+                )
+
+                serializer = LogCreateSerializer(log_obj)
+
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({"message": "반납 신청할 권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+        except ValidationError:
+            return Response({"message": "반납 가능한 상태가 아닙니다."}, status=status.HTTP_400_BAD_REQUEST)
+        except Log.DoesNotExist:
+            return Response({"message": "내역이 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class ExtensionDateAPIView(APIView):
+    # 반납 기한 연장 API
+    @login_check
+    def put(self, request, pk):
+        try:
+            log_obj = Log.objects.get(pk=pk)
+            if 'extend_date' in request.data:
+                if request.data['extend_date'] < 1 or request.data['extend_date'] >7:
+                    raise ValidationError
+
+            if log_obj.user_id.id == request.user.id:
+                serializer = LogModifySerializer(log_obj, data=request.data, partial=True)
+
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "기한 연장할 권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+        except Log.DoesNotExist:
+            return Response({"message": "내역이 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+        except ValidationError:
+            return Response({"message": "연장은 1~7일 사이로만 가능합니다."}, status= status.HTTP_400_BAD_REQUEST)
+
 class OverDueAPIView(APIView):
     # 나의 연체된 로그 조회
     @login_check
@@ -27,14 +209,10 @@ class OverDueAPIView(APIView):
             if len(log_obj) == 0:
                 raise ValidationError
 
-            serializer = LogSerializer(log_obj, many=True)
+            serializer = LogCreateSerializer(log_obj, many=True)
             return Response(serializer.data, status= status.HTTP_200_OK)
         except ValidationError:
             return Response({"message": "연체된 내역이 없습니다."}, status=status.HTTP_204_NO_CONTENT)
-
-    #반납 기한 연장 API
-    #def post(self, request, pk):
-
 
 class RentAcceptedAPIView(APIView):
     #대여 승인 API
@@ -88,7 +266,7 @@ class RentRequestAPIView(APIView):
             equip.current_stock -= request.data['rent_count']
             equip.save()
 
-            serializer_log = LogSerializer(data=request.data)
+            serializer_log = LogCreateSerializer(data=request.data)
 
             if serializer_log.is_valid():
                 serializer_log.save()
@@ -139,7 +317,7 @@ class LogAPIView(APIView):
         if not log_objects.exists():
             return Response({"message": "로그 데이터가 없습니다."}, status= status.HTTP_204_NO_CONTENT)
 
-        serializer = LogSerializer(log_objects, many=True)
+        serializer = LogCreateSerializer(log_objects, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class BookmarkLogAPIView(APIView):
@@ -162,7 +340,7 @@ class BookmarkLogAPIView(APIView):
                 raise ValidationError
 
             log_list = sorted(log_list, key=attrgetter('updated_at'), reverse=True)
-            serializer = LogSerializer(log_list, many=True)
+            serializer = LogCreateSerializer(log_list, many=True)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ValidationError:

@@ -56,6 +56,8 @@ class Renting(models.Model):
 class Returned(models.Model):
     log_id = models.ForeignKey(Log, on_delete=models.CASCADE, db_column='log_id', related_name='returned_log_id',
                                null=True)
+    user_id = models.ForeignKey('Accounts.User', on_delete=models.CASCADE, db_column='u_id',
+                                related_name='returned_user_id')
     return_accepted_date = models.ForeignKey(Log, on_delete=models.CASCADE, db_column='return_accepted_date',
                                            to_field='return_accepted_date',
                                            null=True)

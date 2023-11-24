@@ -1,16 +1,30 @@
 from django.urls import path
 from Equipments.views import InventoryAPIView,InventoryDetailAPIView,InventoryInqUpdatedAtAPIView,\
-     InventoryInqTotalRentAPIView,InventorySearchAPIView, LogAPIView,BookmarkLogAPIView,RentRequestAPIView,RentAcceptedAPIView,OverDueAPIView
+     InventoryInqTotalRentAPIView,InventorySearchAPIView, LogAPIView,BookmarkLogAPIView,RentRequestAPIView,RentAcceptedAPIView,OverDueAPIView,ExtensionDateAPIView,ReturnRequestAPIView, ReturnAcceptedAPIView,RentRefusedAPIView, ReturnedGetAPIView, RequestGetAPIView
 
 from . import views
 
 urlpatterns= [
-     #대여 신청 및 승인
-     path('rent/', RentRequestAPIView.as_view()),
-     path('rent/<int:pk>/', RentAcceptedAPIView.as_view()),
+     #승인 대기 중인 내역 조회
+     path('request/', RequestGetAPIView.as_view()),
+
+     #반납 완료된 내역 조회
+     path('returned/', ReturnedGetAPIView.as_view()),
+
+     #반납 신청 및 승인
+     path('return/request/<int:pk>/', ReturnRequestAPIView.as_view()),
+     path('return/accept/<int:pk>/', ReturnAcceptedAPIView.as_view()),
+
+     #대여 신청 및 승인, 거절
+     path('rent/request/', RentRequestAPIView.as_view()),
+     path('rent/accept/<int:pk>/', RentAcceptedAPIView.as_view()),
+     path('rent/refused/<int:pk>/', RentRefusedAPIView.as_view()),
 
      #연체된 기자재 조회
      path('overdue/', OverDueAPIView.as_view()),
+
+     #대여 기간 연장
+     path('extend/<int:pk>/', ExtensionDateAPIView.as_view()),
 
      #입출고 현황 조회
      path('log/', LogAPIView.as_view()),

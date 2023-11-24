@@ -1,12 +1,28 @@
 from rest_framework import serializers
 from django.utils import timezone
 
-from Equipments.models import Equipment,Log,Renting
+from Equipments.models import Equipment,Log,Renting,Returned,Returning
 
+class RequestGetRentingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= Renting
+        fields= ['id', 'log_id', 'user_id']
+
+class RequestGetReturningSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= Returning
+        fields= '__all__'
+
+
+class ReturnedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= Returned
+        fields= '__all__'
 class RentSerializer(serializers.ModelSerializer):
     class Meta:
         model= Renting
         fields= '__all__'
+
 class EquipmentSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.model_name = validated_data.get('model_name', instance.model_name)
@@ -25,7 +41,19 @@ class EquipmentSerializer(serializers.ModelSerializer):
         model =Equipment
         fields = '__all__'
 
-class LogSerializer(serializers.ModelSerializer):
+class LogModifySerializer(serializers.ModelSerializer):
+    extend_date = serializers.IntegerField(default=0)
+
+    def update(self, instance, validated_data):
+        extend_days = validated_data.get('extend_date', 0)
+        instance.return_deadline += timezone.timedelta(days=extend_days)
+
+        instance.save()
+        return instance
+    class Meta:
+        model = Log
+        fields= '__all__'
+class LogCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Log
         fields= '__all__'
