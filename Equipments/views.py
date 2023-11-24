@@ -50,6 +50,12 @@ class ReturnedGetAPIView(APIView):
     #나의 반납 완료한 리스트 조회 API
     @login_check
     def get(self,request):
+        #1년 계산 후 넘은 것은 삭제
+        one_years_ago = timezone.now()- timezone.timedelta(days=365)
+
+        old_objects = Returned.objects.filter(return_accepted_date__lt= one_years_ago)
+        old_objects.delete()
+
         returned_obj = Returned.objects.filter(user_id = request.user.id)
         returned_obj = sorted(returned_obj, key= attrgetter('return_accepted_date'), reverse=True)
 
