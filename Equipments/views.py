@@ -105,7 +105,7 @@ class ReturnAcceptedAPIView(APIView):
             #관리자인지 확인
             if request.user.is_staff:
                 #승인 가능한 상태인지 확인
-                if log_obj.return_accepted_date is not None:
+                if log_obj.return_accepted_date is not None or log_obj.return_requested_date is None or log_obj.return_accepted_date is None:
                     raise ValidationError
 
                 # 반납 승인시간 업데이트
@@ -149,7 +149,7 @@ class ReturnRequestAPIView(APIView):
             #빌린 본인인지 확인
             if log_obj.user_id.id == request.user.id:
                 # 반납 가능한 상태인지 확인
-                if log_obj.return_requested_date is not None:
+                if log_obj.return_requested_date is not None or log_obj.rent_accepted_date is None:
                     raise ValidationError
 
                 #반납 신청시간 업데이트
