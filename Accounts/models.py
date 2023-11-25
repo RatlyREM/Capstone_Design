@@ -48,9 +48,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nickname']
+    
+    # class Meta:
+    #     db_table= "Accounts_user"
 
 class UserInfo(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user")
     name = models.CharField(max_length=20, blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     address = models.CharField(max_length=80, blank=True, null=True)
+    
+    # class Meta:
+    #     db_table= "Accounts_userinfo"

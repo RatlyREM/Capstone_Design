@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 
-#db 연동
+# db 연동
 import pymysql
 pymysql.install_as_MySQLdb()
 
@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
 
-    #앱
+    # 앱
     'Equipments.apps.EquipmentsConfig',
     'Accounts.apps.AccountsConfig',
     'Bookmark.apps.BookmarkConfig',
@@ -93,14 +93,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'lkk',
-        'USER' : 'root',
-        'PASSWORD' : 'apolonlee9',
-        'HOST': '',
-        'PORT': '3306'
+        'USER' : 'Juho',
+        'PASSWORD' : '1234',
+        'HOST': '43.201.250.195',
+        'PORT': '55906'
     }
 }
 
-#user 설정
+# user 설정
 AUTH_USER_MODEL = 'Accounts.User'
 
 # Password validation
