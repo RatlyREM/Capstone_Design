@@ -10,6 +10,9 @@ from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import AccessToken
+
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 
 from Accounts.serializers import UserSerializer, UserInfoSerializer,UserEmailAndNickSerializer
@@ -19,6 +22,27 @@ from Accounts.models import User, UserInfo
 from config.settings import SECRET_KEY
 from django.http import Http404
 
+# class SendUserTokenAPIVIew(APIView):
+#     permission_classes = [IsAuthenticated]
+    
+#     def post(self, request):
+#         token = request.data.get('access_token')
+        
+#         try:
+#             access_token= AccessToken(token)
+#             user_id = access_token['user_id']
+#             user = User.objects.get(pk = user_id)
+            
+#             serializer = UserSerializer(user)
+            
+#             if user.is_authenticated:
+#                 return Response(serializer.data, status= status.HTTP_200_OK)
+#             else:
+#                 return Response({"message": "로그인 중이 아닙니다."}, status= status.HTTP_400_BAD_REQUEST)
+#         except Exception as e:
+#             return Response({"message": "유효하지 않은 토큰입니다."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        
 class UserInfoCreateAPIView(APIView):
     #회원가입 과정에서 회원정보 생성 API
     def post(self, request, pk):
@@ -110,7 +134,7 @@ class AuthIDAPIView(APIView):
             u = get_object_or_404(User, pk=pk)
 
             try:
-                userInfo = UserInfo.objects.get(user_id= pk)
+                userInfo = UserInfo.objects.get(user_id = pk)
 
                 # 회원정보 삭제
                 userInfo.delete()
@@ -145,7 +169,7 @@ class AuthAPIView(APIView):
             return res
 
         except User.DoesNotExist:
-            return Response({"message": "로그인 되어 있지 않습니다. 로그인 해 주세요."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "그런 유저는 없습니다. 다르게 로그인 해 주세요."}, status=status.HTTP_404_NOT_FOUND)
         # access token이 만료되었을 때
         except jwt.exceptions.ExpiredSignatureError:
             try:
