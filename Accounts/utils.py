@@ -3,26 +3,12 @@ from django.shortcuts import redirect
 
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
 
 from Accounts.models import User
 from config.settings import SECRET_KEY
 
 
-class SeasonTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-
-    def get_token(cls, user):
-        token = super().get_token(user)
-
-        token['id'] = user.id
-        token['email'] = user.email
-        token['nickname'] = user.nickname
-        token['is_staff'] = user.is_staff
-
-        return token
-
+#쿠키 방식을 통한 Access Token 인증
 def login_check(func):
     def wrapper(self, request, *args, **kwargs):
         try:

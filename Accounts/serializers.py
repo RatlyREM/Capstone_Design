@@ -1,7 +1,28 @@
 from rest_framework import serializers
 
 from Accounts.models import User, UserInfo
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+import jwt
+from django.shortcuts import redirect
 
+from rest_framework import status
+from rest_framework.response import Response
+
+from Accounts.models import User
+from config.settings import SECRET_KEY
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        token['id'] = user.id
+        token['email'] = user.email
+        token['nickname'] = user.nickname
+        token['is_staff'] = user.is_staff
+
+        return token
 
 class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):

@@ -17,10 +17,14 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework import permissions
 
 class RequestGetAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
     #승인 대기 중인 리스트 조회 API
-    @login_check
     def get(self, request):
         try:
             if request.user.is_staff:
@@ -47,8 +51,10 @@ class RequestGetAPIView(APIView):
 
 
 class ReturnedGetAPIView(APIView):
-    #나의 반납 완료한 리스트 조회 API
-    @login_check
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    # 7-3 나의 반납 완료한 리스트 조회 API
     def get(self,request):
         #1년 계산 후 넘은 것은 삭제
         one_years_ago = timezone.now()- timezone.timedelta(days=365)
@@ -56,8 +62,9 @@ class ReturnedGetAPIView(APIView):
         old_objects = Returned.objects.filter(return_accepted_date__lt= one_years_ago)
         old_objects.delete()
 
-        returned_obj = Returned.objects.filter(user_id = request.user.id)
-        returned_obj = sorted(returned_obj, key= attrgetter('return_accepted_date'), reverse=True)
+        #returned_obj = Returned.objects.filter(user_id = request.user.id)
+        #returned_obj = sorted(returned_obj, key= attrgetter('return_accepted_date'), reverse=True)
+        returned_obj = Returned.objects.filter(user_id=request.user.id).order_by('-return_accepted_date')
 
         if len(returned_obj) == 0:
             return Response({"message": "반납 완료한 데이터가 없습니다."}, status= status.HTTP_404_NOT_FOUND)
@@ -66,8 +73,10 @@ class ReturnedGetAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class RentRefusedAPIView(APIView):
-    #대여 승인 거절 API
-    @login_check
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    # 7-10 대여 승인 거절 API
     def get(self, request, pk):
         try:
             log_obj = Log.objects.get(pk=pk)
@@ -101,8 +110,10 @@ class RentRefusedAPIView(APIView):
             return Response({"message": "내역이 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
 
 class ReturnAcceptedAPIView(APIView):
-    #반납 승인 API
-    @login_check
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    # 7-9 반납 승인 API
     def get(self, request, pk):
         try:
             log_obj = Log.objects.get(pk=pk)
@@ -111,7 +122,7 @@ class ReturnAcceptedAPIView(APIView):
             #관리자인지 확인
             if request.user.is_staff:
                 #승인 가능한 상태인지 확인
-                if log_obj.return_accepted_date is not None or log_obj.return_requested_date is None or log_obj.return_accepted_date is None:
+                if log_obj.return_accepted_date is not None or log_obj.return_requested_date is None or log_obj.rent_accepted_date is None:
                     raise ValidationError
 
                 # 반납 승인시간 업데이트
@@ -145,8 +156,10 @@ class ReturnAcceptedAPIView(APIView):
 
 
 class ReturnRequestAPIView(APIView):
-    #반납 신청 API
-    @login_check
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    # 7-8 반납 신청 API
     def get(self, request, pk):
         try:
             log_obj = Log.objects.get(pk=pk)
@@ -183,17 +196,20 @@ class ReturnRequestAPIView(APIView):
 
 
 class ExtensionDateAPIView(APIView):
-    # 반납 기한 연장 API
-    @login_check
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    # 7-6 반납 기한 연장 API
     def put(self, request, pk):
         try:
+            data = request.data.copy()
             log_obj = Log.objects.get(pk=pk)
-            if 'extend_date' in request.data:
-                if request.data['extend_date'] < 1 or request.data['extend_date'] >7:
+            if 'extend_date' in data:
+                if int(data['extend_date']) < 1 or int(data['extend_date']) >7:
                     raise ValidationError
 
             if log_obj.user_id.id == request.user.id:
-                serializer = LogModifySerializer(log_obj, data=request.data, partial=True)
+                serializer = LogModifySerializer(log_obj, data=data, partial=True)
 
                 if serializer.is_valid():
                     serializer.save()
@@ -206,8 +222,10 @@ class ExtensionDateAPIView(APIView):
             return Response({"message": "연장은 1~7일 사이로만 가능합니다."}, status= status.HTTP_400_BAD_REQUEST)
 
 class OverDueAPIView(APIView):
-    # 나의 연체된 로그 조회
-    @login_check
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    # 7-5 나의 연체된 로그 조회
     def get(self,request):
         try:
             log_obj = Log.objects.filter(user_id= request.user.id, return_requested_date__isnull= True,return_deadline__lt=timezone.now())
@@ -221,10 +239,13 @@ class OverDueAPIView(APIView):
             return Response({"message": "연체된 내역이 없습니다."}, status=status.HTTP_204_NO_CONTENT)
 
 class RentAcceptedAPIView(APIView):
-    #대여 승인 API
-    @login_check
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    #7-7 대여 승인 API
     def put(self, request, pk):
         try:
+            data = request.data.copy()
             if request.user.is_staff:
                 r = Log.objects.get(pk=pk)
 
@@ -232,7 +253,7 @@ class RentAcceptedAPIView(APIView):
                 if r.rent_accepted_date is not None:
                     raise ValidationError
 
-                serializer_log = LogRentAcceptedSerializer(r, data=request.data, partial=True)
+                serializer_log = LogRentAcceptedSerializer(r, data=data, partial=True)
 
                 if serializer_log.is_valid():
                     serializer_log.save()
@@ -252,27 +273,30 @@ class RentAcceptedAPIView(APIView):
             return Response({"message": "이미 승인한 내역이 존재합니다."}, status=status.HTTP_400_BAD_REQUEST)
 
 class RentRequestAPIView(APIView):
-    # 대여 신청 API
-    @login_check
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    # 7-1 대여 신청 API
     def post(self, request):
         try:
-            request.data['user_id'] = request.user.id
-            request.data['return_deadline'] = timezone.now() + timezone.timedelta(days=7)
-            request.data['rent_requested_date'] = timezone.now()
+            data = request.data.copy()
+            data['user_id'] = request.user.id
+            data['return_deadline'] = timezone.now() + timezone.timedelta(days=7)
+            data['rent_requested_date'] = timezone.now()
 
-            equip = Equipment.objects.get(model_name=request.data['model_name'])
+            equip = Equipment.objects.get(model_name=data['model_name'])
 
-            request.data['rent_price'] = equip.price
+            data['rent_price'] = equip.price
 
             #재고 판단
-            if equip.current_stock < request.data['rent_count']:
+            if equip.current_stock < int(data['rent_count']):
                 raise ValidationError
 
             #현재 재고에서 개수 빼기
-            equip.current_stock -= request.data['rent_count']
+            equip.current_stock -= int(data['rent_count'])
             equip.save()
 
-            serializer_log = LogCreateSerializer(data=request.data)
+            serializer_log = LogCreateSerializer(data=data)
 
             if serializer_log.is_valid():
                 serializer_log.save()
@@ -299,8 +323,7 @@ class RentRequestAPIView(APIView):
             return Response({"message": "대여 신청한 수량이 현재 재고를 초과합니다."}, status=status.HTTP_400_BAD_REQUEST)
 
 
-    #나의 대여 중인 리스트 조회 API
-    @login_check
+    # 7-4 나의 대여 중인 리스트 조회 API
     def get(self, request):
         try:
             renting_obj = Renting.objects.filter(user_id= request.user.id, rent_accepted_date__isnull= False)
@@ -316,7 +339,7 @@ class RentRequestAPIView(APIView):
 
 
 class LogAPIView(APIView):
-    #입출고 현황 조회 API
+    #6-1 입출고 현황 조회 API
     def get(self, request):
         log_objects = Log.objects.all().order_by('-updated_at')
 
@@ -327,8 +350,10 @@ class LogAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class BookmarkLogAPIView(APIView):
-    #현재 로그인한 유저가 즐겨찾기 해둔 기자재의 로그 내역만 조회 API
-    @login_check
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    # 6-2 현재 로그인한 유저가 즐겨찾기 해둔 기자재의 로그 내역만 조회 API
     def get(self, request):
         try:
             # 로그인한 유저의 즐겨찾기 기자재를 모두 가져온다.
@@ -353,7 +378,10 @@ class BookmarkLogAPIView(APIView):
             return Response({"message": "해당 유저의 즐겨찾기 기자재 로그가 존재하지 않습니다."}, status= status.HTTP_404_NOT_FOUND)
 
 class InventoryAPIView(APIView):
-    #전체 기자재 리스트 표시(이름순)
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    #5-2 전체 기자재 리스트 표시(이름순)
     def get(self, request):
         equip = Equipment.objects.all().order_by('model_name')
 
@@ -363,19 +391,20 @@ class InventoryAPIView(APIView):
         serializer = EquipmentSerializer(equip, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    #기자재 정보 추가 API
-    @login_check
+    #5-5 기자재 정보 추가 API
     def post(self, request):
         try:
+            data = request.data.copy()
+
             if request.user.is_staff:
                 # 기자재 중복체크 필요
-                get_object_or_404(Equipment, pk=request.data['model_name'])
+                get_object_or_404(Equipment, pk=data['model_name'])
 
                 return Response({"message": "중복된 기자재를 입력했습니다."}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response({"message": "기자재를 추가할 권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
         except Http404:
-            equipment = request.data
+            equipment = data
             serializer = EquipmentSerializer(data=equipment)
 
             if serializer.is_valid():
@@ -386,14 +415,14 @@ class InventoryAPIView(APIView):
             return Response({"message": "model_name을 올바르게 전달하세요."}, status=status.HTTP_400_BAD_REQUEST)
 
 
-    #기자재 정보 수정 API
-    @login_check
+    # 5-6 기자재 정보 수정 API
     def put(self, request):
         try:
+            data = request.data.copy()
             if request.user.is_staff:
-                equip = Equipment.objects.get(pk =request.data['model_name'])
+                equip = Equipment.objects.get(pk =data['model_name'])
 
-                serializer = EquipmentSerializer(equip, data=request.data, partial=True)
+                serializer = EquipmentSerializer(equip, data=data, partial=True)
 
                 if serializer.is_valid():
                     serializer.save()
@@ -408,7 +437,10 @@ class InventoryAPIView(APIView):
 
 
 class InventoryDetailAPIView(APIView):
-    # 기자재 정보 조회 API
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    # 5-1 기자재 정보 조회 API
     def get(self, request, pk):
         try:
             equip = Equipment.objects.get(pk=pk)
@@ -418,8 +450,7 @@ class InventoryDetailAPIView(APIView):
         except Equipment.DoesNotExist:
             return Response({"message": "해당 기자재의 정보가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
 
-    #기자재 정보 삭제 API
-    @login_check
+    # 5-7 기자재 정보 삭제 API
     def delete(self, request, pk):
         try:
             if request.user.is_staff:
@@ -434,7 +465,10 @@ class InventoryDetailAPIView(APIView):
             return Response({"message": "삭제할 기자재를 찾지 못했습니다."}, status=status.HTTP_404_NOT_FOUND)
 
 class InventoryInqTotalRentAPIView(APIView):
-    #기자재 정보 조회 API(총 조회수 많은 순서)
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    # 5-4 기자재 정보 조회 API(총 조회수 많은 순서)
     def get(self, request):
         equip = Equipment.objects.all().order_by('-total_rent')
 
@@ -445,7 +479,10 @@ class InventoryInqTotalRentAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class InventoryInqUpdatedAtAPIView(APIView):
-    #기자재 정보 조회 API(기자재 정보 추가된 시간 순서)
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    #5-3 기자재 정보 조회 API(기자재 정보 추가된 시간 순서)
     def get(self, request):
         equip = Equipment.objects.all().order_by('-updated_at')
 
@@ -456,15 +493,16 @@ class InventoryInqUpdatedAtAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class InventorySearchAPIView(APIView):
-    #기자재 검색 API (model_name,name,type,repository,manufacturer)
+    # 5-8 기자재 검색 API (model_name,name,type,repository,manufacturer)
      def post(self, request):
          try:
-            if not request.data['searchData']:
+            data = request.data.copy()
+            if not data['searchData']:
                 equip = Equipment.objects.all()
                 serializer = EquipmentSerializer(equip, many=True)
                 return Response(serializer.data, status= status.HTTP_200_OK)
 
-            search = request.data['searchData']
+            search = data['searchData']
             modelnameResult = list(Equipment.objects.filter(model_name__icontains= search))
             nameResult = list(Equipment.objects.filter(name__icontains = search))
             typeResult = list(Equipment.objects.filter(type__icontains=search))
