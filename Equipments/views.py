@@ -24,7 +24,7 @@ class RequestGetAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
-    #승인 대기 중인 리스트 조회 API
+    # 7-2 승인 대기 중인 리스트 조회 API
     def get(self, request):
         try:
             if request.user.is_staff:
@@ -62,8 +62,6 @@ class ReturnedGetAPIView(APIView):
         old_objects = Returned.objects.filter(return_accepted_date__lt= one_years_ago)
         old_objects.delete()
 
-        #returned_obj = Returned.objects.filter(user_id = request.user.id)
-        #returned_obj = sorted(returned_obj, key= attrgetter('return_accepted_date'), reverse=True)
         returned_obj = Returned.objects.filter(user_id=request.user.id).order_by('-return_accepted_date')
 
         if len(returned_obj) == 0:
