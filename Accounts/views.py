@@ -6,18 +6,27 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 
 from django.contrib.auth import authenticate
-
+from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from Accounts.serializers import UserSerializer, UserInfoSerializer,UserEmailAndNickSerializer
 from Accounts.utils import login_check
 from Accounts.models import User, UserInfo
+from Accounts.utils import SeasonTokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from config.settings import SECRET_KEY
 from django.http import Http404
+
+class SeasonTokenObtainPairView(TokenObtainPairView):
+    serializer_class = SeasonTokenObtainPairSerializer
+
 
 class UserInfoCreateAPIView(APIView):
     #회원가입 과정에서 회원정보 생성 API
@@ -38,7 +47,10 @@ class UserInfoCreateAPIView(APIView):
 
 class UserInfoAPIView(APIView):
     #로그인한 유저의 개인정보 조회 API
-    @login_check
+    #@login_check
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
     def get(self, request):
         try:
             userInfo = UserInfo.objects.get(user_id = request.user.id)
@@ -51,7 +63,7 @@ class UserInfoAPIView(APIView):
             return Response(failMessage, status=status.HTTP_400_BAD_REQUEST)
 
     #로그인한 유저의 name, phone_number, address 수정 가능한 API
-    @login_check
+    #@login_check
     def put(self, request):
         try:
             userInfo = UserInfo.objects.get(user_id=request.user.id)

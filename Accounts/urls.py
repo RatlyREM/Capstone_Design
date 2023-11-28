@@ -1,6 +1,7 @@
 from django.urls import path
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from Accounts.views import UserInfoAPIView, AuthAPIView, SigninAPIView,AuthIDAPIView,UserInfoCreateAPIView
+from Accounts.views import UserInfoAPIView, AuthAPIView, SigninAPIView,AuthIDAPIView,UserInfoCreateAPIView, SeasonTokenObtainPairView
 
 urlpatterns = [
     #회원가입
@@ -16,4 +17,7 @@ urlpatterns = [
     path('info/', UserInfoAPIView.as_view()),
     path('info/<int:pk>/', UserInfoCreateAPIView.as_view()),
 
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(),name='token_refresh'),
+    path('token/season/', SeasonTokenObtainPairView.as_view(), name= 'season_token')
 ]

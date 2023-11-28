@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
 from Accounts.models import User, UserInfo
+
+
 class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user= User.objects.create_user(
