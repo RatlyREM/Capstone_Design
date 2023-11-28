@@ -37,7 +37,11 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'corsheaders',
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 331d35779ec2b886ef414b7b1cc2458b4e77f3ac
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -188,4 +192,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ORIGIN_WHITELIST = ['http://127.0.0.1:5500' ,'http://localhost:5500']
+CORS_ALLOW_CREDENTIALS = True
 

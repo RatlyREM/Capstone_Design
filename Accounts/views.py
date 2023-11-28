@@ -12,6 +12,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+<<<<<<< HEAD
+=======
+from rest_framework_simplejwt.tokens import AccessToken
+
+>>>>>>> 331d35779ec2b886ef414b7b1cc2458b4e77f3ac
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -24,11 +29,35 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from config.settings import SECRET_KEY
 from django.http import Http404
 
+<<<<<<< HEAD
 class CustomTokenObtainPairView(TokenObtainPairView):
     #1-2 이메일 로그인 API
     serializer_class = CustomTokenObtainPairSerializer
 
 
+=======
+# class SendUserTokenAPIVIew(APIView):
+#     permission_classes = [IsAuthenticated]
+    
+#     def post(self, request):
+#         token = request.data.get('access_token')
+        
+#         try:
+#             access_token= AccessToken(token)
+#             user_id = access_token['user_id']
+#             user = User.objects.get(pk = user_id)
+            
+#             serializer = UserSerializer(user)
+            
+#             if user.is_authenticated:
+#                 return Response(serializer.data, status= status.HTTP_200_OK)
+#             else:
+#                 return Response({"message": "로그인 중이 아닙니다."}, status= status.HTTP_400_BAD_REQUEST)
+#         except Exception as e:
+#             return Response({"message": "유효하지 않은 토큰입니다."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        
+>>>>>>> 331d35779ec2b886ef414b7b1cc2458b4e77f3ac
 class UserInfoCreateAPIView(APIView):
     #2-1 회원가입 과정에서 회원정보 생성 API
     def post(self, request, pk):
@@ -127,7 +156,7 @@ class AuthIDAPIView(APIView):
             u = get_object_or_404(User, pk=pk)
 
             try:
-                userInfo = UserInfo.objects.get(user_id= pk)
+                userInfo = UserInfo.objects.get(user_id = pk)
 
                 # 회원정보 삭제
                 userInfo.delete()
@@ -162,6 +191,33 @@ class AuthAPIView(APIView):
             # res.set_cookie('access', access)
             # res.set_cookie('refresh', request.COOKIES.get('refresh'))
             return res
+<<<<<<< HEAD
+=======
+
+        except User.DoesNotExist:
+            return Response({"message": "그런 유저는 없습니다. 다르게 로그인 해 주세요."}, status=status.HTTP_404_NOT_FOUND)
+        # access token이 만료되었을 때
+        except jwt.exceptions.ExpiredSignatureError:
+            try:
+                data = {'refresh': request.COOKIES.get('refresh', None)}
+                serializer = TokenRefreshSerializer(data=data)
+                if serializer.is_valid(raise_exception=True):
+                    access = serializer.validated_data.get('access', None)
+                    refresh = serializer.validated_data.get('refresh', None)
+                    payload = jwt.decode(access, SECRET_KEY, algorithms=['HS256'])
+                    pk = payload.get('user_id')
+                    user = get_object_or_404(User, pk=pk)
+                    serializer = UserSerializer(instance=user)
+                    res = Response(serializer.data, status=status.HTTP_200_OK)
+                    res.set_cookie('access', access)
+                    res.set_cookie('refresh', refresh)
+                    return res
+            except rest_framework_simplejwt.exceptions.TokenError:
+                return Response({"message": "로그인이 만료되었습니다."}, status=status.HTTP_200_OK)
+
+            raise jwt.exceptions.InvalidTokenError
+        #사용 불가능한 토큰일 때
+>>>>>>> 331d35779ec2b886ef414b7b1cc2458b4e77f3ac
         except jwt.exceptions.InvalidTokenError:
             return Response({"message": "로그인이 만료되었습니다. 로그인 해 주세요."}, status=status.HTTP_404_NOT_FOUND)
 
