@@ -20,6 +20,18 @@ from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import permissions
 
+class LogDetailAPIView(APIView):
+    # 7-11 로그 상세정보 조회
+    def get(self, request, pk):
+        try:
+            l= Log.objects.get(pk = pk)
+            serializer = LogCreateSerializer(l)
+
+            return Response(serializer.data, status= status.HTTP_200_OK)
+        except Log.DoesNotExist:
+            return Response({"message": "해당 로그 내역이 존재하지 않습니다."}, status = status.HTTP_404_NOT_FOUND)
+
+
 class RequestGetAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -510,14 +522,14 @@ class InventorySearchAPIView(APIView):
             combined_object = modelnameResult+nameResult+typeResult+repositoryResult+manufacturerResult
             combined_object = sorted(combined_object,key=attrgetter('model_name'))
 
-            if len(combined_object) == 0:
-                raise ValidationError
+            # if len(combined_object) == 0:
+            #     raise ValidationError
             serializer = EquipmentSerializer(combined_object, many=True)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-         except ValidationError:
-             return Response({"message": "검색 결과가 없습니다."}, status= status.HTTP_204_NO_CONTENT)
+         # except ValidationError:
+         #     return Response({"message": "검색 결과가 없습니다."}, status= status.HTTP_204_NO_CONTENT)
          except KeyError:
              return Response({"message": "공백으로라도 searchData 전달 필요"}, status= status.HTTP_400_BAD_REQUEST)
 

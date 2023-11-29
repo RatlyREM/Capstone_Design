@@ -881,3 +881,127 @@ Bad Request: /Accounts/auth/
 [29/Nov/2023 00:09:40] "GET /Accounts/auth/ HTTP/1.1" 200 373
 [29/Nov/2023 00:16:40] "GET /Accounts/auth/ HTTP/1.1" 200 373
 [29/Nov/2023 00:16:40] "DELETE /Accounts/auth/ HTTP/1.1" 200 33
+Watching for file changes with StatReloader
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 02:09:43] "GET /Accounts/auth/ HTTP/1.1" 401 5130
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 02:09:43] "GET /Accounts/auth/ HTTP/1.1" 401 5130
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 18:23:04] "POST /Accounts/auth/ HTTP/1.1" 401 96
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 18:25:09] "POST /Accounts/auth/ HTTP/1.1" 401 96
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 18:25:28] "POST /Accounts/auth/ HTTP/1.1" 401 96
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 18:25:38] "POST /Accounts/auth/ HTTP/1.1" 401 96
+[29/Nov/2023 18:29:54] "POST /Accounts/login/ HTTP/1.1" 200 681
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 18:31:12] "GET /Accounts/auth/ HTTP/1.1" 401 96
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 18:31:20] "GET /Accounts/auth/ HTTP/1.1" 401 96
+[29/Nov/2023 18:31:26] "POST /Accounts/login/ HTTP/1.1" 200 681
+Bad Request: /Accounts/login/
+[29/Nov/2023 18:36:06] "POST /Accounts/login/ HTTP/1.1" 400 110
+Unauthorized: /Accounts/login/
+[29/Nov/2023 18:36:15] "POST /Accounts/login/ HTTP/1.1" 401 102
+Unauthorized: /Accounts/login/
+[29/Nov/2023 18:36:50] "POST /Accounts/login/ HTTP/1.1" 401 102
+Unauthorized: /Accounts/login/
+[29/Nov/2023 18:37:03] "POST /Accounts/login/ HTTP/1.1" 401 102
+Unauthorized: /Accounts/login/
+[29/Nov/2023 18:38:47] "POST /Accounts/login/ HTTP/1.1" 401 102
+[29/Nov/2023 18:40:55] "POST /Accounts/login/ HTTP/1.1" 200 681
+Unauthorized: /Accounts/login/
+[29/Nov/2023 18:42:06] "POST /Accounts/login/ HTTP/1.1" 401 102
+[29/Nov/2023 18:42:13] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 18:42:25] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 18:42:59] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 18:43:49] "POST /Accounts/login/ HTTP/1.1" 200 681
+Unauthorized: /Accounts/login/
+[29/Nov/2023 18:44:40] "POST /Accounts/login/ HTTP/1.1" 401 102
+[29/Nov/2023 18:44:44] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 18:45:40] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 18:50:34] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 18:51:52] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 18:59:26] "POST /Accounts/login/ HTTP/1.1" 200 681
+Unauthorized: /Accounts/login/
+[29/Nov/2023 18:59:43] "POST /Accounts/login/ HTTP/1.1" 401 102
+Method Not Allowed: /Accounts/login/
+[29/Nov/2023 18:59:47] "GET /Accounts/login/ HTTP/1.1" 405 7588
+[29/Nov/2023 19:00:00] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 19:01:00] "POST /Accounts/login/ HTTP/1.1" 200 681
+Unauthorized: /Accounts/login/
+[29/Nov/2023 19:01:10] "POST /Accounts/login/ HTTP/1.1" 401 102
+[29/Nov/2023 19:01:16] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 19:01:29] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 19:01:42] "POST /Accounts/login/ HTTP/1.1" 200 681
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 19:01:42] "GET /Accounts/auth/ HTTP/1.1" 401 96
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 19:02:01] "GET /Accounts/auth/ HTTP/1.1" 401 96
+Unauthorized: /Accounts/login/
+[29/Nov/2023 19:02:52] "POST /Accounts/login/ HTTP/1.1" 401 102
+[29/Nov/2023 19:02:59] "POST /Accounts/login/ HTTP/1.1" 200 681
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 19:02:59] "GET /Accounts/auth/ HTTP/1.1" 401 96
+[29/Nov/2023 19:07:25] "POST /Accounts/login/ HTTP/1.1" 200 681
+Unauthorized: /Accounts/login/
+[29/Nov/2023 19:18:14] "POST /Accounts/login/ HTTP/1.1" 401 102
+[29/Nov/2023 19:18:19] "POST /Accounts/login/ HTTP/1.1" 200 681
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 19:18:19] "GET /Accounts/auth/ HTTP/1.1" 401 96
+Unauthorized: /Accounts/login/
+[29/Nov/2023 19:22:31] "POST /Accounts/login/ HTTP/1.1" 401 102
+[29/Nov/2023 19:22:35] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 19:23:02] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 19:23:45] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 19:24:09] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 19:24:38] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 19:25:04] "POST /Accounts/login/ HTTP/1.1" 200 681
+Unauthorized: /Accounts/login/
+[29/Nov/2023 19:25:27] "POST /Accounts/login/ HTTP/1.1" 401 102
+[29/Nov/2023 19:25:34] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 19:26:47] "POST /Accounts/login/ HTTP/1.1" 200 681
+Unauthorized: /Accounts/login/
+[29/Nov/2023 19:27:25] "POST /Accounts/login/ HTTP/1.1" 401 102
+[29/Nov/2023 19:27:29] "POST /Accounts/login/ HTTP/1.1" 200 681
+[29/Nov/2023 19:28:07] "POST /Accounts/login/ HTTP/1.1" 200 681
+Unauthorized: /Accounts/login/
+[29/Nov/2023 19:32:43] "POST /Accounts/login/ HTTP/1.1" 401 102
+[29/Nov/2023 19:32:50] "POST /Accounts/login/ HTTP/1.1" 200 681
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 19:32:56] "GET /Accounts/auth/ HTTP/1.1" 401 96
+Bad Request: /Accounts/signin/
+[29/Nov/2023 19:37:42] "POST /Accounts/signin/ HTTP/1.1" 400 121
+Bad Request: /Accounts/signin/
+[29/Nov/2023 19:38:17] "POST /Accounts/signin/ HTTP/1.1" 400 64
+Bad Request: /Accounts/signin/
+[29/Nov/2023 19:38:37] "POST /Accounts/signin/ HTTP/1.1" 400 121
+Bad Request: /Accounts/signin/
+[29/Nov/2023 19:38:57] "POST /Accounts/signin/ HTTP/1.1" 400 121
+Bad Request: /Accounts/signin/
+[29/Nov/2023 19:39:09] "POST /Accounts/signin/ HTTP/1.1" 400 121
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 19:43:34] "GET /Accounts/auth/?email=pcj%40pcj.com&password=123 HTTP/1.1" 401 134
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 19:44:09] "POST /Accounts/auth/ HTTP/1.1" 401 96
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 19:45:37] "POST /Accounts/auth/ HTTP/1.1" 401 96
+Unauthorized: /Accounts/auth/
+[29/Nov/2023 19:46:28] "GET /Accounts/auth/ HTTP/1.1" 401 5130
+Method Not Allowed: /Accounts/login/
+[29/Nov/2023 19:46:33] "GET /Accounts/login/ HTTP/1.1" 405 7588
+[29/Nov/2023 19:46:33] "GET /static/rest_framework/css/bootstrap.min.css HTTP/1.1" 304 0
+[29/Nov/2023 19:46:33] "GET /static/rest_framework/css/prettify.css HTTP/1.1" 304 0
+[29/Nov/2023 19:46:33] "GET /static/rest_framework/css/default.css HTTP/1.1" 304 0
+[29/Nov/2023 19:46:33] "GET /static/rest_framework/css/bootstrap-tweaks.css HTTP/1.1" 304 0
+[29/Nov/2023 19:46:33] "GET /static/rest_framework/js/csrf.js HTTP/1.1" 304 0
+[29/Nov/2023 19:46:33] "GET /static/rest_framework/js/jquery-3.5.1.min.js HTTP/1.1" 304 0
+[29/Nov/2023 19:46:33] "GET /static/rest_framework/js/bootstrap.min.js HTTP/1.1" 304 0
+[29/Nov/2023 19:46:33] "GET /static/rest_framework/js/prettify-min.js HTTP/1.1" 304 0
+[29/Nov/2023 19:46:33] "GET /static/rest_framework/js/default.js HTTP/1.1" 304 0
+[29/Nov/2023 19:46:33] "GET /static/rest_framework/js/ajax-form.js HTTP/1.1" 304 0
+[29/Nov/2023 19:46:33] "GET /static/rest_framework/img/grid.png HTTP/1.1" 304 0
+[29/Nov/2023 19:47:06] "POST /Accounts/login/ HTTP/1.1" 200 8218
+[29/Nov/2023 19:48:45] "POST /Accounts/login/ HTTP/1.1" 200 697
+[29/Nov/2023 19:52:01] "GET /Accounts/auth/ HTTP/1.1" 200 370

@@ -37,11 +37,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'corsheaders',
-<<<<<<< HEAD
-
-=======
     
->>>>>>> 331d35779ec2b886ef414b7b1cc2458b4e77f3ac
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -71,8 +67,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'config.urls'
 
@@ -143,25 +137,16 @@ SIMPLE_JWT = {
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
+    
+    
+}
 
-    # 'VERIFYING_KEY': None,
-    # 'AUDIENCE': None,
-    # 'ISSUER': None,
-    # 'JWK_URL': None,
-    # 'LEEWAY': 0,
-
-
-    # 'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
-    #
-    # 'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    # 'TOKEN_TYPE_CLAIM': 'token_type',
-    # 'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
-
-    #'JTI_CLAIM': 'jti',
-
-    # 'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    # 'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
-    # 'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 다른 인증 클래스들도 포함시킬 수 있습니다 (옵션)
+    ],
+    # 다른 설정들...
 }
 
 # Internationalization
@@ -175,13 +160,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        # 다른 인증 클래스들도 포함시킬 수 있습니다 (옵션)
-    ],
-    # 다른 설정들...
-}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
@@ -195,4 +173,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ORIGIN_WHITELIST = ['http://127.0.0.1:5500' ,'http://localhost:5500']
 CORS_ALLOW_CREDENTIALS = True
-
